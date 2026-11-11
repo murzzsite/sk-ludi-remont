@@ -70,11 +70,11 @@ const LEAD_ENDPOINT = 'https://lead-relay.leestygpt.workers.dev/lead/7RLK5R3RJG'
     [160,220,160,300],[160,350,160,420],[280,220,280,420]
   ];
   const FURN = [
-    { r: 'k', s: '<rect x="38" y="38" width="170" height="30" fill="#B79F74"/><rect x="38" y="160" width="120" height="48" fill="#7C8F9C"/><rect x="48" y="170" width="22" height="22" fill="#FF5A1F"/><rect x="214" y="110" width="64" height="64" fill="#FBFBF9"/>' },
-    { r: 'b', s: '<rect x="390" y="50" width="110" height="140" fill="#FBFBF9"/><rect x="390" y="44" width="110" height="14" fill="#7C8F9C"/><rect x="344" y="50" width="36" height="30" fill="#B79F74"/><rect x="510" y="50" width="48" height="30" fill="#B79F74"/>' },
-    { r: 'h', s: '<rect x="36" y="378" width="64" height="30" fill="#B79F74"/><rect x="36" y="236" width="22" height="90" fill="#7C8F9C"/>' },
-    { r: 'w', s: '<rect x="172" y="236" width="48" height="80" fill="#FBFBF9"/><circle cx="244" cy="388" r="14" fill="#FBFBF9"/><rect x="226" y="236" width="40" height="22" fill="#7C8F9C"/>' },
-    { r: 'c', s: '<rect x="296" y="380" width="120" height="28" fill="#B79F74"/><rect x="480" y="260" width="84" height="140" fill="#FBFBF9"/><rect x="480" y="256" width="84" height="12" fill="#FF5A1F"/>' }
+    { r: 'k', s: '<rect x="38" y="38" width="170" height="30" fill="#B79F74"/><rect x="38" y="160" width="120" height="48" fill="#8B9094"/><rect x="48" y="170" width="22" height="22" fill="#FFD800"/><rect x="214" y="110" width="64" height="64" fill="#FBFBF9"/>' },
+    { r: 'b', s: '<rect x="390" y="50" width="110" height="140" fill="#FBFBF9"/><rect x="390" y="44" width="110" height="14" fill="#8B9094"/><rect x="344" y="50" width="36" height="30" fill="#B79F74"/><rect x="510" y="50" width="48" height="30" fill="#B79F74"/>' },
+    { r: 'h', s: '<rect x="36" y="378" width="64" height="30" fill="#B79F74"/><rect x="36" y="236" width="22" height="90" fill="#8B9094"/>' },
+    { r: 'w', s: '<rect x="172" y="236" width="48" height="80" fill="#FBFBF9"/><circle cx="244" cy="388" r="14" fill="#FBFBF9"/><rect x="226" y="236" width="40" height="22" fill="#8B9094"/>' },
+    { r: 'c', s: '<rect x="296" y="380" width="120" height="28" fill="#B79F74"/><rect x="480" y="260" width="84" height="140" fill="#FBFBF9"/><rect x="480" y="256" width="84" height="12" fill="#FFD800"/>' }
   ];
   const NS = 'http://www.w3.org/2000/svg';
   const svg = inner => `<svg viewBox="0 0 600 440" xmlns="${NS}" aria-hidden="true">${inner}</svg>`;
@@ -139,7 +139,7 @@ const LEAD_ENDPOINT = 'https://lead-relay.leestygpt.workers.dev/lead/7RLK5R3RJG'
   const BARE = ['#D3D6D1', '#B9BEB8', '#C9C2B2', '#EAE5DA'];
   const sceneRects = scene ? $$('.l-floor .rm', scene.stage) : [];
   const sceneFurn = scene ? $$('.furn', scene.stage) : [];
-  const weekEl = $('#wayWeek');
+  const weekEl = $('#wayWeek'), pctEl = $('#wayPct'), barEl = $('#wayBar');
   const steps = $$('.way__step');
   const way = $('#way');
   let shown = -1, lastWeek = -1;
@@ -153,6 +153,8 @@ const LEAD_ENDPOINT = 'https://lead-relay.leestygpt.workers.dev/lead/7RLK5R3RJG'
     const step = Math.min(5, Math.floor(prog));
     const week = Math.round(p * 15);
     if (week !== lastWeek) { weekEl.textContent = week; lastWeek = week; }
+    const pct = Math.round(p * 100);
+    pctEl.textContent = pct + '%'; barEl.style.width = pct + '%';
     if (step !== shown) {
       shown = step;
       steps.forEach((s, i) => s.classList.toggle('is-active', i === step));
@@ -225,6 +227,16 @@ const LEAD_ENDPOINT = 'https://lead-relay.leestygpt.workers.dev/lead/7RLK5R3RJG'
     });
   }
 
+  /* photo rotator */
+  $$('.ph').forEach((fig, n) => {
+    const imgs = $$('img', fig);
+    if (imgs.length < 2 || reduce) return;
+    let i = 0;
+    setTimeout(() => setInterval(() => {
+      imgs[i].classList.remove('is-on'); i = (i + 1) % imgs.length; imgs[i].classList.add('is-on');
+    }, 3800), 1200 + n * 700);
+  });
+
   /* ============ calculator ============ */
   const area = $('#area'), areaOut = $('#areaOut');
   const cTotal = $('#cTotal'), cRepair = $('#cRepair'), cDesign = $('#cDesign'), cNote = $('#cNote');
@@ -237,10 +249,11 @@ const LEAD_ENDPOINT = 'https://lead-relay.leestygpt.workers.dev/lead/7RLK5R3RJG'
     let repair, note;
     if (kind === 'cap') {
       repair = a * 20000;
-      note = 'Сумма «от»: итог зависит от состояния квартиры и выбранных материалов.';
+      note = 'Ориентир «от»: итог зависит от состояния квартиры. Стоимость материалов в расчёт не входит.';
     } else {
-      repair = where === 'out' ? 800000 : 500000;
-      note = 'Косметический и черновой ремонт: от 500 000 ₽ в пределах МКАД и от 800 000 ₽ за МКАД, до 20 км.';
+      const min = where === 'out' ? 800000 : 500000;
+      repair = Math.max(min, a * (min / 60));
+      note = 'Косметический и черновой ремонт: ориентир по площади, не меньше 500 000 ₽ в пределах МКАД и 800 000 ₽ за МКАД, до 20 км. Материалы в расчёт не входят.';
     }
     const rate = des === 'tech' ? 2390 : des === '3d' ? 3690 : 0;
     const design = a * rate;
