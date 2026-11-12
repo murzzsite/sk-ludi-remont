@@ -74,7 +74,7 @@ section{padding:clamp(80px,11vw,170px) var(--m)}
 .facts{display:grid;grid-template-columns:repeat(4,1fr);gap:0;padding:0;background:var(--acc)}
 .facts__item{padding:clamp(28px,4vw,56px) var(--m);min-width:0}
 .facts__item:nth-child(even){background:#F5CE00}
-.facts__n{font-size:clamp(32px,4.6vw,72px);font-weight:700;letter-spacing:-.045em;line-height:1;margin-bottom:12px;white-space:nowrap}
+.facts__n{font-size:clamp(30px,4vw,64px);font-weight:700;letter-spacing:-.045em;line-height:1;margin-bottom:12px;white-space:nowrap}
 .facts__t{font-size:16px;line-height:1.4;max-width:22ch}
 
 /* why */
